@@ -4,12 +4,13 @@ import Column from '../column/column.js';
 
 import './App.scss';
 
+const API_URL = 'https://city-explorer-backend.herokuapp.com';
+
 class App extends Component {
   constructor(props) {
     super(props);
     
     this.state = {
-      apiUrl: 'https://city-explorer-backend.herokuapp.com',
       location: '',
       mapUrl: '',
       weather: [],
@@ -26,7 +27,7 @@ class App extends Component {
 
   async getLocation(locationStr) {
     try {
-      const response = await superagent.get(`${this.state.apiUrl}/location`).query({ data: locationStr });
+      const response = await superagent.get(`${API_URL}/location`).query({ data: locationStr });
       const location = response.body;
       const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude}%2c%20${location.longitude}&zoom=13&size=600x300&maptype=roadmap
       &key=AIzaSyDp0Caae9rkHUHwERAFzs6WN4_MuphTimk`;
@@ -40,7 +41,7 @@ class App extends Component {
 
   async getResource(resource, data) {
     try {
-      const response = await superagent.get(`${this.state.apiUrl}/${resource}`).query({ data });
+      const response = await superagent.get(`${API_URL}/${resource}`).query({ data });
       this.setState({ [resource]: response.body });
     } catch(err) {
       this.setState({ [resource]: [] });
@@ -112,7 +113,7 @@ class App extends Component {
                   {
                     this.state.movies.map((movie, i) => (
                       <li key={i}>
-                        <p><span>{ movie.title }</span> was released on { movie.released_on }. Out of { movie.total_votes }, { movie.title } has an average vote of { movie.average_votes } and a populatory score of { movie.popularity }</p>
+                        <p><span>{ movie.title }</span> was released on { movie.released_on }. Out of { movie.total_votes } votes, { movie.title } has an average vote of { movie.average_votes } and a populatory score of { movie.popularity }</p>
                         <img src={ movie.image_url } alt=""/>
                         <p>{ movie.overview }</p>
                       </li>
@@ -123,7 +124,7 @@ class App extends Component {
                   {
                     this.state.trails.map((trail, i) => (
                       <li key={i}>
-                        <p>Hike Name: <a src={ trail.trail_url }>trail.name</a></p>
+                        <p>Hike Name: <a src={ trail.trail_url }>{ trail.name }</a></p>
                         <p>Location: { trail.location }. Distance: { trail.length } miles.</p>
                         <p>On { trail.condition_date } at { trail.condition_time }, trail conditions were reported as: { trail.conditions }</p>
                         <p>This trail has a rating of { trail.stars } (out of {trail.star_votes} votes.</p>
