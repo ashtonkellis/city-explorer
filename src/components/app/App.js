@@ -1,27 +1,139 @@
 import React, { Component } from 'react';
+import superagent from 'superagent';
+import Column from '../column/column.js';
 
-import logo from '../../assets/logo.svg';
 import './App.scss';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      apiUrl: 'https://city-explorer-backend.herokuapp.com',
+      location: '',
+      mapUrl: '',
+      weather: '',
+      yelp: '',
+      meetups: '',
+      movies: '',
+      trails: '',
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.getLocation = this.getLocation.bind(this);
+    this.getResource = this.getResource.bind(this);
+  }
+
+  async getLocation(locationStr) {
+    try {
+      const response = await superagent.get(`${this.state.apiUrl}/location`).query({ data: locationStr });
+      const location = response.body;
+      const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude}%2c%20${location.longitude}&zoom=13&size=600x300&maptype=roadmap
+      &key=AIzaSyDp0Caae9rkHUHwERAFzs6WN4_MuphTimk`;
+
+      this.setState({ location, mapUrl });
+      return location;
+    } catch (err) {
+      return;
+    }
+  }
+
+  async getResource(resource, data) {
+    try {
+      const response = await superagent.get(`${this.state.apiUrl}/${resource}`).query({ data });
+      this.setState({ [resource]: response.body });
+    } catch(err) {
+      this.setState({ [resource]: '' });
+    }
+  }
+
+  async handleSubmit(event) {
+    event.preventDefault();
+
+    const location = await this.getLocation(event.target.location.value);
+    const resources = ['weather', 'movies', 'yelp', 'meetups', 'trails'];
+    Promise.all(resources.map(resource => this.getResource(resource, location)));
+  }
+
+  componentDidMount() {
+    const event = { target: { location: { value: 'seattle' } } };
+    event.preventDefault = () => undefined;
+    this.handleSubmit(event);
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <React.Fragment>
+        <h1>City Explorer</h1>
+        <h3>Enter a location below to learn about the weather, events, restaurants, movies filmed there, and more!</h3>
+        <form onSubmit={ this.handleSubmit }>
+          <label id="location">Search for a location</label>
+          <input htmlFor="location" placeholder="Enter a location here" name="location"/>
+          <button type="submit">Explore!</button>
+        </form>
+        {/* display results after search */}
+        { this.state.location &&  
+          <div>
+            <img id="map" src={ this.state.mapUrl } alt="Map of search query"></img>
+            <h2>Here are the results for { this.state.location.formatted_query }</h2>
+            <div className="column-container">
+              <Column apiName="Dark Sky">
+                {
+                  this.state.weather && this.state.weather.map((forecast, i) => (
+                    <li key={i}>
+                      The forecast for {forecast.time} is: { forecast.forecast }
+                    </li>))
+                }
+              </Column>
+              <Column apiName="Yelp">
+                {
+                  this.state.yelp && this.state.yelp.map((review, i) => (
+                    <li key={i}>
+                      <a href={ review.url }>{ review.name }</a>
+                      <p>The average rating is { review.rating } out of 5 and the average cost is { review.price } our of 4.  </p>
+                      <img src={ review.image_url } />
+                    </li>))
+                }
+              </Column>
+              <Column apiName="Meetup">
+                {
+                  this.state.meetups && this.state.meetups.map((event, i) => (
+                    <li key={i}>
+                      <a href={ event.link }>{ event.name }</a>
+                      <p>Hosted by: { event.host }</p>
+                      <p>Created on: { event.creation_date }</p>
+                    </li>
+                  ))
+                }
+              </Column>
+              <Column apiName="MovieDB">
+                {
+                  this.state.movies && this.state.movies.map((movie, i) => (
+                    <li key={i}>
+                      <p><strong>{ movie.title }</strong>was released on { movie.released_on }. Out of { movie.total_votes }, ${ movie.title } has an average vote of { movie.average_votes } and a populatory score of { movie.popularity }</p>
+                      <img src={ movie.image_url } />
+                      <p>{ movie.overview }</p>
+                    </li>
+                  ))
+                }
+              </Column>
+              <Column apiName="Hiking Project">
+                {
+                  this.state.trails && this.state.trails.map((trail, i) => (
+                    <li key={i}>
+                      <p>Hike Name: <a src={ trail.trail_url }>trail.name</a></p>
+                      <p>Location: { trail.location }. Distance: { trail.length } miles.</p>
+                      <p>On { trail.condition_date } at { trail.condition_time }, trail conditions were reported as: { trail.conditions }</p>
+                      <p>This trail has a rating of { trail.stars } (out of {trail.star_votes} votes.</p>
+                      <p>{ trail.summary }</p>
+                    </li>
+                  ))
+                }
+              </Column>
+            </div>
+          </div>
+        }
+      </React.Fragment>
     );
   }
 }

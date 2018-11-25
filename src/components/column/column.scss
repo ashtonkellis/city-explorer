@@ -1,0 +1,16 @@
+section {
+  width: 20%;
+  background-color: white;
+  border: 1px solid #666;
+  padding: .2em;
+  text-align: left;
+
+  li {
+    list-style-type: none;
+    border-bottom: 1px solid black;
+
+    img {
+      width: 50%;
+    }
+  }
+}
