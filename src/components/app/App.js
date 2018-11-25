@@ -21,8 +21,6 @@ class App extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.getLocation = this.getLocation.bind(this);
-    this.getResource = this.getResource.bind(this);
   }
 
   async getLocation(locationStr) {
@@ -56,11 +54,11 @@ class App extends Component {
     Promise.all(resources.map(resource => this.getResource(resource, location)));
   }
 
-  componentDidMount() {
-    const event = { target: { location: { value: 'seattle' } } };
-    event.preventDefault = () => undefined;
-    this.handleSubmit(event);
-  }
+  // componentDidMount() {
+  //   const event = { target: { location: { value: 'seattle' } } };
+  //   event.preventDefault = () => undefined;
+  //   this.handleSubmit(event);
+  // }
 
   render() {
     return (
@@ -124,7 +122,7 @@ class App extends Component {
                   {
                     this.state.trails.map((trail, i) => (
                       <li key={i}>
-                        <p>Hike Name: <a src={ trail.trail_url }>{ trail.name }</a></p>
+                        <p>Hike Name: <a href={ trail.trail_url }>{ trail.name }</a></p>
                         <p>Location: { trail.location }. Distance: { trail.length } miles.</p>
                         <p>On { trail.condition_date } at { trail.condition_time }, trail conditions were reported as: { trail.conditions }</p>
                         <p>This trail has a rating of { trail.stars } (out of {trail.star_votes} votes.</p>

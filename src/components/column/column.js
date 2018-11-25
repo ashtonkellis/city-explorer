@@ -3,10 +3,6 @@ import React from 'react';
 import './column.scss';
 
 export default class Column extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <section>
