@@ -1,9 +1,43 @@
 body {
+  font-family: 'Josefin Sans', sans-serif;
+  background-color: #D9D9D9;
   text-align: center;
-  background-color: lightgrey;
+
+  h1 {
+    font-size: 5vw;
+    color: #4484CE;
+  }
+
+  header, form label, h3 {
+    font-family: 'Acme', sans-serif;
+  }
+
+  h2 {
+    font-size: 2vw;
+  }
+  
+  header p, main label {
+    font-size: 1.4vw;
+  }
+
+  button {
+    padding: 5px 15px;
+    background-color:#F19F4D;
+    border: 1px solid #4484CE;
+  }
+
+  form input {
+    padding: 5px;
+    border: 1px solid #4484CE;
+  }
 
   .column-container {
     display: flex;
     justify-content: space-around;
+  }
+
+  #map {
+    margin-top: 10px;
+    border: 2px solid #4484CE;
   }
 }
